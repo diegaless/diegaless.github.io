@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<title>improveops.me | Blog</title>
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:100,400,700" rel="stylesheet"> -->
+	<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400i,700,700i" rel="stylesheet">
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="improveops.me">
+	<meta name="keywords" content="Programming, Hacking, Reverse Engineering, Pwn, Scripting, Coding, Encrypting">
+	<meta name="author" content="diegales">
+
+	<!-- <meta http-equiv="refresh" content="0"> This is an awful thing to do don't even think about it -->
+</head>
+<body onLoad="load();">
+
+	<!-- Nav Bar -->
+	<div class="nav-wrapper">
+		<nav class="topnav noselect" id="topnav">
+			<a href="../index.html">Home</a>
+			<a class="active">Blog</a>
+			<a href="../about/" onclick="setTimeout(function(){closeHome('../about/about.html');},200); return false;">About Me</a>
+			<div class="topnav-right">
+				<a class="nav-icon" href="https://github.com/jscd"><i class="fab fa-github"></i></a>
+			</div>
+		</nav>
+	</div>
+
+	<script>
+		function closeHome(url){
+			var i = 0;
+			var terminal = document.getElementById("term");
+			var speed = 50;
+
+			txt = "clear";
+			terminal.innerHTML = "<b>visitor@improveops.me</b>:~$ man improveops.me<br><b>visitor@improveops.me</b>:~$ ";
+
+			setTimeout(typeOut2, 500);
+
+
+			function typeOut2(){
+				if(i < txt.length){
+					terminal.innerHTML += txt.charAt(i);
+					i++;
+					setTimeout(typeOut2, speed);
+				}else{
+					console.log(url);
+					setTimeout(function(){window.location=url;}, 500);
+					return false;
+				}
+			}
+		}
+	</script>
+
+	<!-- Main Content -->
+	<div class="content">
+		<div id="term"><b>visitor@improveops.me</b>:~$ </div>
+
+		<script>
+			function load(){
+					setTimeout(typeOut, 1000);
+			}
+
+			var i = 0;
+			var txt = "./blog-interface.sh";
+			var speed = 50; /* Milliseconds */
+
+			function typeOut(){
+				if(i < txt.length){
+					document.getElementById("term").innerHTML += txt.charAt(i);
+					i++;
+					setTimeout(typeOut,speed);
+				}else{
+					setTimeout(list, 500);
+				}
+			}
+
+			function list(){
+				document.getElementById("term").innerHTML =`
+					<div class="blog-list">
+					<span style="padding:5px;">Posts (Newest to Oldest):</span><br><br>
+
+					</div>
+				`
+			}
+		</script>
+	</div>
+
+	<!-- Footer -->
+	<div>
+		<br><br>
+		<div class="footer">
+			<p>Created by diegaless ∙ © 2018 All rights reserved.</p>
+		</div>
+	</div>
+
+	<script>
+		window.onscroll = function(){navStick()};
+		var navbar = document.getElementById("topnav");
+		var sticky = navbar.offsetTop;
+		function navStick(){
+			if(window.pageYOffset >= sticky){
+				navbar.classList.add("sticky");
+			}else{
+				navbar.classList.remove("sticky");
+			}
+		}
+	</script>
+	<script>
+		document.cookie="loaded=yes"
+	</script>
+
+
+</body>
+</html>
