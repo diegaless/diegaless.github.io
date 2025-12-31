@@ -1,214 +1,70 @@
 <!DOCTYPE html>
-<html lang="en-US">
-<head>
-	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-124599810-1"></script>
-	<script>
-  		window.dataLayer = window.dataLayer || [];
- 	 	function gtag(){dataLayer.push(arguments);}
-  		gtag('js', new Date());
+<html lang="es-ES">
 
-  		gtag('config', 'UA-124599810-1');
-	</script>
-	
+<head>
+
+
 	<title>improveops.me | Home</title>
 
 	<link rel="stylesheet" type="text/css" href="style.css">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
-	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:100,400,700" rel="stylesheet"> -->
-	<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400i,700,700i" rel="stylesheet">
-	<script type="text/javascript">
-		document.oncontextmenu = function(){return false;}
-	</script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+		integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="improviseops.me">
-	<meta name="keywords" content="Programming, Hacking, Reverse Engineering, Pwn, Scripting, Coding, Encrypting">
+	<meta name="description"
+		content="Personal portfolio and blog of Diego Ayala (diegaless). Improving operations, programming, and cybersecurity.">
+	<meta name="keywords"
+		content="Programming, Hacking, Reverse Engineering, Pwn, Scripting, Coding, Encrypting, Security, DevOps">
 	<meta name="author" content="Diego Ayala">
+	<meta name="theme-color" content="#000000">
+	<link rel="icon" type="image/svg+xml" href="favicon.svg">
 
-	<!-- <meta http-equiv="refresh" content="0"> This is an awful thing to do don't even think about it -->
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://improveops.me/">
+	<meta property="og:title" content="improveops.me | Home">
+	<meta property="og:description"
+		content="Personal portfolio and blog of Diego Ayala (diegaless). Improving operations, programming, and cybersecurity.">
+	<meta property="og:image" content="https://improveops.me/favicon.svg">
+
 </head>
-<body onLoad="load();">
 
-	<!-- Nav Bar -->
-	<div class="nav-wrapper">
-		<nav class="topnav noselect" id="topnav">
-			<a class="active" href="">Home</a>
-			<a href="blog" onclick="setTimeout(function(){closeHome('blog/blog.html');},200); return false;">Carrileos</a>
-			<a href="about" onclick="setTimeout(function(){closeHome('about/about.html');},200); return false;">About Me</a>
+<body>
+
+	<header class="nav-wrapper">
+		<nav class="topnav" id="topnav" aria-label="Main Navigation">
+			<a class="active" href="/" aria-current="page">Home</a>
+			<a href="blog/blog.html" class="nav-link" data-dest="blog/blog.html">Carrileos</a>
+			<a href="about/about.html" class="nav-link" data-dest="about/about.html">About Me</a>
 			<div class="topnav-right">
-				<a class="nav-icon" href="https://github.com/diegaless"><i class="fab fa-github"></i></a>
+				<a class="nav-icon" href="https://github.com/diegaless" target="_blank" rel="noopener noreferrer"><i
+						class="fab fa-github"></i></a>
+				<a class="nav-icon" href="https://www.linkedin.com/in/diego-ayala/" target="_blank"
+					rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a>
 			</div>
 		</nav>
-	</div>
-
-	<script>
-		function closeHome(url){
-			var i = 0;
-			var terminal = document.getElementById("term");
-			var speed = 50;
-
-			txt = "clear";
-			terminal.innerHTML = "<b>visitor@improveops.me</b>:~$ man improveops.me<br><b>visitor@improveops.me</b>:~$ ";
-
-			setTimeout(typeOut2, 500);
+	</header>
 
 
-			function typeOut2(){
-				if(i < txt.length){
-					terminal.innerHTML += txt.charAt(i);
-					i++;
-					setTimeout(typeOut2, speed);
-				}else{
-					console.log(url);
-					setTimeout(function(){window.location=url;}, 500);
-					return false;
-				}
-			}
-		}
-	</script>
 
-	<!-- Main Content -->
-	<div class="content">
-		<div id="term"><b>visitor@improveops.me</b>:~$ </div>
+	<main class="content">
+		<div id="term" aria-live="polite"><b>visitor@improveops.me</b>:~$ </div>
 
-		<script>
-			function load(){
-					setTimeout(typeOut, 1000);
-			}
+	</main>
 
-			var i = 0;
-			var txt = "man improveops.me";
-			var speed = 50; /* Milliseconds */
-
-			var unm = "";
-			var prvdr ="";
-			var lnktxt ="";
-
-			function typeOut(){
-				if(i < txt.length){
-					document.getElementById("term").innerHTML += txt.charAt(i);
-					i++;
-					setTimeout(typeOut,speed);
-				}else{
-					setTimeout(manPage, 500);
-				}
-			}
-
-			unm = "diegales29";
-			prvdr="hotmail.es";
-			lnktxt="@";
-
-			function manPage(){
-				document.getElementById("term").innerHTML = `
-				<p style='text-align:center;'>improveops.me</p>
-				<div>
-					<b>NAME</b>
-					<div class="tabbed">
-						improveops.me -- A website about diegaless.
-					</div>
-
-					<b>SYNOPSIS</b>
-					<div class="tabbed">
-						<b>improveops.me</b>
-					</div>
-
-					<b>DESCRIPTION</b>
-					<div class="tabbed">
-						The <b>improveops.me</b> utility provides information on diegaless, including his current and past projects. It also contains what
-						he's gained from them and how they <b>could</b> be made so much better, in addition to why they won't be.
-					 </div>
-
-					<b>BUGS</b><br>
-					<div class="tabbed">
-						Hopefully none, but if there are any report them
-						<a href="https://github.com/diegaless/diegaless.github.io/issues" style="text-decoration:underline;color:inherit">here</a>.
-					</div>
-
-					<b>AUTHOR</b><br>
-					<div class="tabbed">
-						diegaless &lt;<span id="em"><a onclick="email()" style="text-decoration:underline;color:inherit;">click for email</a></span>&gt;
-					</div>
-
-					<b>SEE ALSO</b><br>
-					<div class="tabbed">
-						blog(1), about(2), cowsay(1), github(3)
-					</div>
-
-				</div>
-				`;
-			}
-		</script>
-		<noscript>
-			<p style='text-align:center;'>improveops.me</p>
-				<div>
-					<b>NAME</b>
-					<div class="tabbed">
-						improveops.me -- A website about diegaless.
-					</div>
-
-					<b>SYNOPSIS</b>
-					<div class="tabbed">
-						<b>improveops.me</b>
-					</div>
-
-					<b>DESCRIPTION</b>
-					<div class="tabbed">
-						The <b>improveops.me</b> utility provides information on diegaless, including his current and past projects. It also contains what
-						he's gained from them and how they <b>could</b> be made so much better, in addition to why they won't be.
-					 </div>
-
-					<b>BUGS</b><br>
-					<div class="tabbed">
-						Hopefully none, but if there are any report them
-						<a href="https://github.com/diegaless/diegaless.github.io/issues" style="text-decoration:underline;color:inherit">here</a>.
-					</div>
-
-					<b>AUTHOR</b><br>
-					<div class="tabbed">
-						diegaless &lt;<span id="em"><a onclick="email()" style="text-decoration:underline;color:inherit;">temporary@email.com</a></span>&gt;
-					</div>
-
-					<b>SEE ALSO</b><br>
-					<div class="tabbed">
-						blog(1), about(2), cowsay(1), github(3)
-					</div>
-
-				</div>
-		</noscript>
-	</div>
-
-	<!-- Footer -->
-	<div>
-		<br><br>
+	<footer class="footer-container">
 		<div class="footer">
-			<p>Created by diegaless ∙ © 2018 All rights reserved.</p>
+			<p>Created by diegaless ∙ © <span id="year"></span> All rights reserved.</p>
 		</div>
-	</div>
+	</footer>
 
-	<script>
-		window.onscroll = function(){navStick()};
-		var navbar = document.getElementById("topnav");
-		var sticky = navbar.offsetTop;
-		function navStick(){
-			if(window.pageYOffset >= sticky){
-				navbar.classList.add("sticky");
-			}else{
-				navbar.classList.remove("sticky");
-			}
-		}
-	</script>
-	<script>
-		function email(){
-			elm = document.getElementById("em");
-			elm.innerHTML = unm + lnktxt + prvdr;
-		};
-	</script>
-	<script>
-		document.cookie="loaded=yes"
-	</script>
+
+
+	<script src="script.js"></script>
 
 
 </body>
+
 </html>
