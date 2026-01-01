@@ -19,6 +19,11 @@ const blogData = [
         stack: " "
     },
     {
+        date: "18-10-23",
+        content: "<b>Side job </b> - Not bad for a side gig — best pay package nationwide.",
+        stack: " "
+    },
+    {
         date: "30-08-18",
         content: "Added support for SSL (https enabled)."
     }
