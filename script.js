@@ -158,9 +158,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let postsHtml = '';
 
         if (typeof blogData !== 'undefined' && Array.isArray(blogData)) {
-            blogData.forEach(post => {
+            blogData.forEach((post, index) => {
+                let stackHtml = '';
+                if (post.stack) {
+                    const stackId = `stack-${index}`;
+                    stackHtml = ` <a href="#" onclick="document.getElementById('${stackId}').style.display = document.getElementById('${stackId}').style.display === 'none' ? 'block' : 'none'; return false;" style="text-decoration:none; color:inherit; font-size:0.8em;">[+]</a>
+                    <div id="${stackId}" style="display:none; margin-top:5px; margin-left:10px; opacity:0.8; font-size:0.9em;">${post.stack}</div>`;
+                }
+
                 postsHtml += `<b>${post.date}</b>
-<div class="tabbed">${post.content}</div>
+<div class="tabbed">${post.content}${stackHtml}</div>
 `;
             });
         } else {
