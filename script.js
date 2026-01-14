@@ -43,7 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             switch (pageId) {
                 case 'page-blog':
-                    runTypeSequence("./blog-interface.sh", renderBlogList);
+                    runTypeSequence("./carrileos-interface.sh", () => renderList(typeof blogData !== 'undefined' ? blogData : [], 'Carrileos', 'No posts found.', 'carrileos'));
+                    break;
+                case 'page-conferences':
+                    runTypeSequence("./conferences.sh", () => renderList(typeof conferencesData !== 'undefined' ? conferencesData : [], 'Conferencias', 'No conferences found.', 'conf'));
+                    break;
+                case 'page-excursions':
+                    runTypeSequence("./excursions.sh", () => renderList(typeof excursionsData !== 'undefined' ? excursionsData : [], 'Excursiones', 'No excursions found.', 'exc'));
                     break;
                 case 'page-about':
                     runTypeSequence("vim about-me.txt", renderAboutVim);
@@ -154,31 +160,97 @@ document.addEventListener('DOMContentLoaded', () => {
         if (terminal) terminal.innerHTML = termContent;
     }
 
-    function renderBlogList() {
+    function renderList(data, title, emptyMsg, idPrefix) {
         let postsHtml = '';
-
-        if (typeof blogData !== 'undefined' && Array.isArray(blogData)) {
-            blogData.forEach((post, index) => {
+        if (typeof data !== 'undefined' && Array.isArray(data) && data.length > 0) {
+            data.forEach((post, index) => {
                 let stackHtml = '';
-                if (post.stack) {
-                    const stackId = `stack-${index}`;
+                if (post.stack && post.stack.trim().length > 0) {
+                    const stackId = `stack-${idPrefix}-${index}`;
                     stackHtml = ` <a href="#" onclick="document.getElementById('${stackId}').style.display = document.getElementById('${stackId}').style.display === 'none' ? 'block' : 'none'; return false;" style="text-decoration:none; color:inherit; font-size:0.8em;">[+]</a>
                     <div id="${stackId}" style="display:none; margin-top:5px; margin-left:10px; opacity:0.8; font-size:0.9em;">${post.stack}</div>`;
                 }
 
+                // Carousel Logic
+                let carouselHtml = '';
+                if (post.images && Array.isArray(post.images) && post.images.length > 0) {
+                    const carouselId = `carousel-${idPrefix}-${index}`;
+
+                    let slidesHtml = '';
+                    post.images.forEach((imgSrc, i) => {
+                        const displayStyle = i === 0 ? 'block' : 'none';
+                        const activeClass = i === 0 ? 'active' : '';
+                        slidesHtml += `<div class="carousel-slide ${activeClass}" id="${carouselId}-slide-${i}" style="display:${displayStyle}">
+                            <img src="${imgSrc}" alt="Image ${i + 1}" loading="lazy">
+                        </div>`;
+                    });
+
+                    // Only show controls if more than 1 image
+                    let controlsHtml = '';
+                    if (post.images.length > 1) {
+                        controlsHtml = `
+                        <div class="carousel-controls">
+                            <button class="carousel-btn" onclick="window.moveCarousel('${carouselId}', -1, ${post.images.length})">&lt;</button>
+                            <span class="carousel-indicator" id="${carouselId}-indicator">1/${post.images.length}</span>
+                            <button class="carousel-btn" onclick="window.moveCarousel('${carouselId}', 1, ${post.images.length})">&gt;</button>
+                        </div>`;
+                    }
+
+                    carouselHtml = `
+                    <div class="carousel-container" id="${carouselId}">
+                        ${slidesHtml}
+                        ${controlsHtml}
+                    </div>`;
+                }
+
                 postsHtml += `<b>${post.date}</b>
-<div class="tabbed">${post.content}${stackHtml}</div>
+<div class="tabbed">${post.content}${stackHtml}
+${carouselHtml}
+</div>
 `;
             });
         } else {
-            postsHtml = '<b>NO POSTS</b><div class="tabbed">No posts found.</div>';
+            postsHtml = `<b>NO CONTENT</b><div class="tabbed">${emptyMsg}</div>`;
         }
 
-        const termContent = `<p class="term-title">Carrileos</p>
+        const termContent = `<p class="term-title">${title}</p>
 <div>
 ${postsHtml}</div>`;
         if (terminal) terminal.innerHTML = termContent;
     }
+
+    // Expose carousel logic globally
+    window.moveCarousel = function (carouselId, step, totalSlides) {
+        // Find current active index
+        let activeIndex = -1;
+        for (let i = 0; i < totalSlides; i++) {
+            const slide = document.getElementById(`${carouselId}-slide-${i}`);
+            if (slide && slide.style.display === 'block') {
+                activeIndex = i;
+                break;
+            }
+        }
+
+        if (activeIndex === -1) return; // Should not happen
+
+        // Calculate new index
+        let newIndex = activeIndex + step;
+        if (newIndex < 0) newIndex = totalSlides - 1;
+        if (newIndex >= totalSlides) newIndex = 0;
+
+        // Update DOM
+        document.getElementById(`${carouselId}-slide-${activeIndex}`).style.display = 'none';
+        document.getElementById(`${carouselId}-slide-${activeIndex}`).classList.remove('active');
+
+        document.getElementById(`${carouselId}-slide-${newIndex}`).style.display = 'block';
+        document.getElementById(`${carouselId}-slide-${newIndex}`).classList.add('active');
+
+        // Update indicator
+        const indicator = document.getElementById(`${carouselId}-indicator`);
+        if (indicator) {
+            indicator.textContent = `${newIndex + 1}/${totalSlides}`;
+        }
+    };
 
     function renderAboutVim() {
         state.stopVimAnimation = false;

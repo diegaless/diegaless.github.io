@@ -327,3 +327,81 @@ pre a {
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--term-green);
 }
+
+/* CAROUSEL */
+.carousel-container {
+	position: relative;
+	width: 100%;
+	max-width: 600px;
+	margin-top: 10px;
+	border: 1px solid var(--term-green);
+	padding: 5px;
+	/* Add min-height to prevent collapse if image loads slowly, though exact height depends on content.
+       Better to let it be, but ensure slides don't flash. */
+	overflow: hidden;
+	/* Contain slides */
+}
+
+.carousel-slide {
+	display: none;
+	width: 100%;
+	/* Ensure all slides take up same space if possible, or just center them */
+	text-align: center;
+}
+
+.carousel-slide.active {
+	display: block;
+	/* optional animation */
+	animation: fadeEffect 0.5s;
+}
+
+/* Keyframes for smooth transition */
+@keyframes fadeEffect {
+	from {
+		opacity: 0.4
+	}
+
+	to {
+		opacity: 1
+	}
+}
+
+.carousel-slide img {
+	width: auto;
+	/* Allow width to adjust naturally */
+	max-width: 100%;
+	/* Prevent overflowing width */
+	height: auto;
+	/* Allow height to adjust naturally */
+	max-height: 500px;
+	/* Limit maximum height */
+	display: block;
+	margin: 0 auto;
+	/* Center the image */
+}
+
+.carousel-controls {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 5px;
+	padding: 0 5px;
+}
+
+.carousel-btn {
+	background: transparent;
+	border: none;
+	color: var(--term-green);
+	font-family: var(--font-stack);
+	font-size: 1.2rem;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.carousel-btn:hover {
+	text-shadow: 0 0 5px var(--term-green);
+}
+
+.carousel-indicator {
+	font-size: 0.9em;
+}
