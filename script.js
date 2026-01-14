@@ -251,6 +251,18 @@ ${postsHtml}</div>`;
         if (indicator) {
             indicator.textContent = `${newIndex + 1}/${totalSlides}`;
         }
+
+        // Prefetch next image
+        let nextPrefetchIndex = newIndex + 1;
+        if (nextPrefetchIndex >= totalSlides) nextPrefetchIndex = 0;
+
+        const nextSlide = document.getElementById(`${carouselId}-slide-${nextPrefetchIndex}`);
+        if (nextSlide) {
+            const nextImg = nextSlide.querySelector('img');
+            if (nextImg && nextImg.loading === 'lazy') {
+                nextImg.loading = 'eager'; // Trigger load
+            }
+        }
     };
 
     function renderAboutVim() {
