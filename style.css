@@ -95,16 +95,31 @@ pre a {
 
 .topnav {
 	background-color: transparent;
-	overflow: hidden;
+	overflow-x: auto;
+	/* Allow horizontal scrolling */
+	overflow-y: hidden;
 	height: 40px;
 	z-index: 999;
 	border-bottom: 1px solid var(--term-green);
 	box-shadow: 0 2px 10px var(--term-glow);
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+	/* Hide scrollbar Firefox */
+}
+
+/* Hide scrollbar Chrome/Safari */
+.topnav::-webkit-scrollbar {
+	display: none;
 }
 
 .topnav a {
-	padding: 14px 16px;
-	float: left;
+	padding: 0 16px;
+	height: 100%;
+	display: flex;
+	align-items: center;
 	transition: all 0.3s ease;
 	border-right: 1px solid var(--term-green);
 	border-bottom: 2px solid transparent;
@@ -113,6 +128,8 @@ pre a {
 	text-align: center;
 	text-decoration: none;
 	font-size: 1rem;
+	flex-shrink: 0;
+	/* Prevent shrinking */
 }
 
 .topnav a:hover {
@@ -130,7 +147,10 @@ pre a {
 }
 
 .topnav-right {
-	float: right;
+	margin-left: auto;
+	/* Push to right */
+	display: flex;
+	height: 100%;
 }
 
 .topnav-right a {
@@ -140,7 +160,9 @@ pre a {
 
 .nav-icon {
 	font-size: 1.5rem;
-	padding: 8px 16px !important;
+	padding: 0 16px !important;
+	display: flex;
+	align-items: center;
 }
 
 .sticky {

@@ -180,8 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     post.images.forEach((imgSrc, i) => {
                         const displayStyle = i === 0 ? 'block' : 'none';
                         const activeClass = i === 0 ? 'active' : '';
+                        const loadingAttr = i === 0 ? 'eager' : 'lazy'; // Load first image immediately, others lazily
                         slidesHtml += `<div class="carousel-slide ${activeClass}" id="${carouselId}-slide-${i}" style="display:${displayStyle}">
-                            <img src="${imgSrc}" alt="Image ${i + 1}" loading="lazy">
+                            <img src="${imgSrc}" alt="Image ${i + 1}" loading="${loadingAttr}">
                         </div>`;
                     });
 
