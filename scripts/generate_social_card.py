@@ -42,8 +42,8 @@ def generate_social_card() -> Path:
         draw.text((nav_x, 64), item, font=nav_font, fill=green)
         nav_x += draw.textlength(item, font=nav_font) + 42
 
-    draw.text((86, 170), 'visitor@improveops.me:~$ whoami', font=body_font, fill=green)
-    draw.text((86, 232), 'improveops.me', font=title_font, fill=green)
+    draw.text((86, 170), 'visitor@diegaleesss.com:~$ whoami', font=body_font, fill=green)
+    draw.text((86, 232), 'diegaleesss.com', font=title_font, fill=green)
     draw.text((86, 340), 'Programming, automation, cybersecurity and technical education.', font=subtitle_font, fill=green)
     draw.text((86, 398), 'Static site. Terminal aesthetic. GitHub Pages friendly.', font=subtitle_font, fill=muted)
 

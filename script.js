@@ -1,5 +1,5 @@
 /**
- * ImproveOps.me Main Script
+ * diegaleesss.com Main Script
  * Progressive enhancement for a static GitHub Pages deployment.
  */
 
@@ -16,16 +16,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const homePageContent = {
         type: 'sections',
-        title: 'improveops.me',
+        title: 'diegaleesss.com',
         statusMessage: 'Contenido principal cargado.',
         sections: [
             {
                 title: 'NAME',
-                paragraphs: ['improveops.me -- A website about diegaless.']
+                paragraphs: ['diegaleesss.com -- A website about diegaless.']
             },
             {
                 title: 'SYNOPSIS',
-                html: '<strong>improveops.me</strong>'
+                html: '<strong>diegaleesss.com</strong>'
             },
             {
                 title: 'DESCRIPTION',
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const staticPageMap = {
         'page-home': {
-            command: 'man improveops.me',
+            command: 'man diegaleesss.com',
             render: () => renderPageContent(homePageContent)
         },
         'page-about': {
@@ -560,7 +560,7 @@ ${linksHtml}
 
     function resetAndType(text, url) {
         if (terminal) {
-            terminal.innerHTML = '<strong>visitor@improveops.me</strong>:~$ man improveops.me<br><strong>visitor@improveops.me</strong>:~$ ';
+            terminal.innerHTML = '<strong>visitor@diegaleesss.com</strong>:~$ man diegaleesss.com<br><strong>visitor@diegaleesss.com</strong>:~$ ';
         }
 
         let index = 0;
