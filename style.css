@@ -1,8 +1,23 @@
+@font-face {
+	font-family: 'Ubuntu Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('assets/fonts/ubuntu-mono-400.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Ubuntu Mono';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('assets/fonts/ubuntu-mono-700.woff2') format('woff2');
+}
+
 :root {
-	--bg-color: black;
-	--term-green: #28FE14;
+	--bg-color: #000;
+	--term-green: #28fe14;
 	--term-glow: #28fe1440;
-	/* Reduced glow opacity for better readability */
 	--font-stack: 'Ubuntu Mono', monospace;
 }
 
@@ -17,34 +32,14 @@ html {
 body {
 	margin: 0;
 	padding: 0;
-
+	min-height: 100%;
 	background-color: var(--bg-color);
 	color: var(--term-green);
-
-	min-height: 100%;
-
 	font-family: var(--font-stack);
 	font-weight: lighter;
-
 	display: flex;
 	flex-direction: column;
-
-	/* CRT Scanline Effect Removed */
-	/* background-image: linear-gradient(rgba(18, 16, 16, 0) 50%,
-			rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg,
-			rgba(255, 0, 0, 0.06),
-			rgba(0, 255, 0, 0.02),
-			rgba(0, 0, 255, 0.06));
-	background-size: 100% 2px, 3px 100%; */
 }
-
-/* Text Glow Effect - Removed for better readability */
-/* body,
-pre,
-a,
-.content {
-	text-shadow: 0 0 2px var(--term-glow);
-} */
 
 pre {
 	margin: 0;
@@ -52,51 +47,59 @@ pre {
 	font-family: var(--font-stack);
 }
 
-pre a {
+pre a,
+.term-link {
 	text-decoration: underline;
 	color: inherit;
 }
 
-/* Back Button */
-.back-button {
-	padding: 10px;
+.skip-link {
+	position: absolute;
+	top: 0;
+	left: 1rem;
+	padding: 0.5rem 0.75rem;
+	background-color: var(--bg-color);
 	color: var(--term-green);
-	background-color: transparent;
 	border: 1px solid var(--term-green);
 	text-decoration: none;
-	transition: all 0.3s ease;
-	box-shadow: 0 0 5px var(--term-glow);
+	transform: translateY(-140%);
+	z-index: 1001;
 }
 
-.back-button:hover {
-	color: var(--bg-color);
-	background-color: var(--term-green);
-	box-shadow: 0 0 15px var(--term-green);
+.skip-link:focus-visible {
+	transform: translateY(0.5rem);
 }
 
-.back-button i {
-	visibility: hidden;
+a:focus-visible,
+button:focus-visible {
+	outline: 2px solid var(--term-green);
+	outline-offset: 3px;
 }
 
-.back-button:hover i {
-	visibility: visible;
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
 }
 
-
-/* NAVIGATION
- *
- */
+[hidden] {
+	display: none !important;
+}
 
 .nav-wrapper {
 	height: 40px;
 	margin-bottom: 20px;
-	/* Separator */
 }
 
 .topnav {
 	background-color: transparent;
 	overflow-x: auto;
-	/* Allow horizontal scrolling */
 	overflow-y: hidden;
 	height: 40px;
 	z-index: 999;
@@ -107,10 +110,8 @@ pre a {
 	white-space: nowrap;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
-	/* Hide scrollbar Firefox */
 }
 
-/* Hide scrollbar Chrome/Safari */
 .topnav::-webkit-scrollbar {
 	display: none;
 }
@@ -123,13 +124,11 @@ pre a {
 	transition: all 0.3s ease;
 	border-right: 1px solid var(--term-green);
 	border-bottom: 2px solid transparent;
-
 	color: var(--term-green);
 	text-align: center;
 	text-decoration: none;
 	font-size: 1rem;
 	flex-shrink: 0;
-	/* Prevent shrinking */
 }
 
 .topnav a:hover {
@@ -148,7 +147,6 @@ pre a {
 
 .topnav-right {
 	margin-left: auto;
-	/* Push to right */
 	display: flex;
 	height: 100%;
 }
@@ -159,10 +157,16 @@ pre a {
 }
 
 .nav-icon {
-	font-size: 1.5rem;
 	padding: 0 16px !important;
 	display: flex;
 	align-items: center;
+	justify-content: center;
+}
+
+.nav-icon-svg {
+	width: 1.2rem;
+	height: 1.2rem;
+	fill: currentColor;
 }
 
 .sticky {
@@ -170,31 +174,20 @@ pre a {
 	top: 0;
 	width: 100%;
 	background-color: rgba(13, 13, 13, 0.9);
-	/* Semi-transparent background when sticky */
 }
-
-
-/* CONTENT
- *
- */
 
 .content {
 	position: relative;
 	width: 100%;
 	max-width: 900px;
-	/* Limit width for readability */
 	margin: 2rem auto;
-	/* Center content */
-	padding: 0 1rem;
-
+	padding: 0 1rem 60px;
 	text-align: left;
 	color: var(--term-green);
 	font-size: clamp(14px, 1.2vw, 18px);
 	line-height: 1.8;
 	letter-spacing: 0.03em;
 	flex: 1;
-	padding-bottom: 60px;
-	/* Space for fixed footer */
 }
 
 @media only screen and (max-width: 1024px) {
@@ -210,6 +203,8 @@ pre a {
 .content h5,
 .content h6 {
 	font-weight: lighter;
+	font-size: inherit;
+	line-height: inherit;
 	text-align: left;
 }
 
@@ -223,43 +218,50 @@ pre a {
 	padding-bottom: 20px;
 }
 
-.blog-list a {
-	margin-top: 20px;
-	margin-bottom: 10px;
-	text-decoration: underline;
-	color: var(--term-green);
-	background-color: transparent;
+.inline-toggle {
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 0.8em;
+	cursor: pointer;
 }
 
-.blog-list a:hover {
-	text-decoration: none;
-	color: var(--bg-color);
-	background-color: var(--term-green);
+.inline-toggle:hover,
+.carousel-btn:hover {
+	text-shadow: 0 0 5px var(--term-green);
 }
 
-#term-content .term-content-title {
-	text-align: center;
-}
-
-#term-content {
-	padding: 0 1rem;
-	width: 100%;
-}
-
-#term-content pre code {
-	background-color: #1a1a1a;
-	color: #d4d4d4;
+.stack-details {
+	margin-top: 5px;
+	margin-left: 10px;
+	opacity: 0.8;
 	font-size: 0.9em;
-	margin: 10px 0;
-	border: 1px solid #444;
-	display: block;
-	padding: 10px;
-	border-radius: 4px;
 }
 
-#term-content pre {
-	width: 100%;
-	overflow-x: auto;
+.terminal-list {
+	display: block;
+}
+
+.terminal-entry {
+	margin: 0;
+}
+
+.entry-date {
+	margin: 0;
+	font-weight: bold;
+}
+
+.entry-title {
+	display: inline;
+	margin: 0;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.entry-summary {
+	display: inline;
 }
 
 .content .term-title {
@@ -269,35 +271,25 @@ pre a {
 	font-weight: bold;
 }
 
-#vim {
+.term-section {
 	margin: 0;
-	padding: 0;
+}
+
+.term-section-title {
+	margin: 0;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.term-paragraph {
+	margin: 0 0 1.2rem;
 }
 
 #term {
-	/* Ensure consistent positioning across all pages */
 	margin: 0;
 	padding: 0;
 	position: relative;
 }
-
-/* Wrapper for dynamic title centering (Blog, About) */
-.content-block {
-	display: inline-block;
-	width: fit-content;
-}
-
-.term-title-dynamic {
-	text-align: center;
-	margin-top: 0;
-	margin-bottom: 1.5rem;
-	font-weight: bold;
-}
-
-
-/* FOOTER
- *
- */
 
 .footer-container {
 	position: fixed;
@@ -316,23 +308,8 @@ pre a {
 	font-size: 0.8rem;
 	padding: 0.5rem 0;
 	border-top: 1px solid #28fe1433;
-	/* Very faint line */
 }
 
-/* MISC
- *
- */
-
-.noselect {
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-/* CUSTOM SCROLLBAR */
 ::-webkit-scrollbar {
 	width: 10px;
 }
@@ -350,7 +327,6 @@ pre a {
 	background: var(--term-green);
 }
 
-/* CAROUSEL */
 .carousel-container {
 	position: relative;
 	width: 100%;
@@ -358,48 +334,40 @@ pre a {
 	margin-top: 10px;
 	border: 1px solid var(--term-green);
 	padding: 5px;
-	/* Add min-height to prevent collapse if image loads slowly, though exact height depends on content.
-       Better to let it be, but ensure slides don't flash. */
 	overflow: hidden;
-	/* Contain slides */
 }
 
 .carousel-slide {
-	display: none;
 	width: 100%;
-	/* Ensure all slides take up same space if possible, or just center them */
 	text-align: center;
 }
 
 .carousel-slide.active {
 	display: block;
-	/* optional animation */
 	animation: fadeEffect 0.5s;
 }
 
-/* Keyframes for smooth transition */
 @keyframes fadeEffect {
 	from {
-		opacity: 0.4
+		opacity: 0.4;
 	}
 
 	to {
-		opacity: 1
+		opacity: 1;
 	}
+}
+
+.carousel-slide picture {
+	display: block;
 }
 
 .carousel-slide img {
 	width: auto;
-	/* Allow width to adjust naturally */
 	max-width: 100%;
-	/* Prevent overflowing width */
 	height: auto;
-	/* Allow height to adjust naturally */
 	max-height: 500px;
-	/* Limit maximum height */
 	display: block;
 	margin: 0 auto;
-	/* Center the image */
 }
 
 .carousel-controls {
@@ -420,10 +388,16 @@ pre a {
 	font-weight: bold;
 }
 
-.carousel-btn:hover {
-	text-shadow: 0 0 5px var(--term-green);
-}
-
 .carousel-indicator {
 	font-size: 0.9em;
+}
+
+.error-line {
+	color: #ff3333;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.carousel-slide.active {
+		animation: none;
+	}
 }

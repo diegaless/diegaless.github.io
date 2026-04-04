@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$title</title>
+    $head_extra
+    <link rel="preload" href="${asset_prefix}assets/fonts/ubuntu-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="${asset_prefix}assets/fonts/ubuntu-mono-700.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" type="text/css" href="${asset_prefix}style.css">
+    <link rel="icon" type="image/svg+xml" href="${asset_prefix}favicon.svg">
+    <link rel="canonical" href="$canonical">
+    <meta name="description" content="$meta_description">
+    <meta name="keywords" content="$meta_keywords">
+    <meta name="author" content="$meta_author">
+    <meta name="theme-color" content="#000000">
+    $meta_robots
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:type" content="$og_type">
+    <meta property="og:url" content="$canonical">
+    <meta property="og:title" content="$og_title">
+    <meta property="og:description" content="$og_description">
+    <meta property="og:image" content="$social_image">
+    <meta property="og:image:alt" content="$social_image_alt">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="$twitter_title">
+    <meta name="twitter:description" content="$twitter_description">
+    <meta name="twitter:image" content="$social_image">
+    $json_ld_scripts
+</head>
+<body id="$body_id">
+    <a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+    <header class="nav-wrapper">
+        <nav class="topnav" id="topnav" aria-label="Main Navigation">
+$nav_links
+            <div class="topnav-right">
+$social_links
+            </div>
+        </nav>
+    </header>
+
+    <main class="content" id="main-content" aria-labelledby="page-title">
+        <h1 class="sr-only" id="page-title">$page_title</h1>
+        <p class="sr-only" id="page-description">$page_description</p>
+        <p class="sr-only" id="page-status" aria-live="polite"></p>
+        <div id="term" aria-live="off" aria-describedby="page-description page-status" aria-busy="true"><b>visitor@improveops.me</b>:~$$ </div>
+    </main>
+
+    <footer class="footer-container">
+        <div class="footer">
+            <p>Created by diegaless ∙ © <span id="year"></span> All rights reserved.</p>
+        </div>
+    </footer>
+$data_script_tag
+    <script src="${asset_prefix}script.js"></script>
+</body>
+</html>

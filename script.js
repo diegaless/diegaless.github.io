@@ -1,75 +1,138 @@
 /**
  * ImproveOps.me Main Script
- * Modernized for performance, maintainability, and centralized logic.
+ * Progressive enhancement for a static GitHub Pages deployment.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Configuration ---
     const config = {
         typingSpeed: 50,
         initialDelay: 1000,
-        pageTransitionDelay: 500,
         terminalId: 'term',
         navbarId: 'topnav',
+        statusId: 'page-status',
         emailId: 'em',
-        emailLinkId: 'email-link',
-        loadingCookieName: 'loaded'
+        emailLinkId: 'email-link'
     };
 
-    // --- State ---
+    const homePageContent = {
+        type: 'sections',
+        title: 'improveops.me',
+        statusMessage: 'Contenido principal cargado.',
+        sections: [
+            {
+                title: 'NAME',
+                paragraphs: ['improveops.me -- A website about diegaless.']
+            },
+            {
+                title: 'SYNOPSIS',
+                html: '<strong>improveops.me</strong>'
+            },
+            {
+                title: 'DESCRIPTION',
+                paragraphs: [
+                    'The site collects projects, conference activity, excursions and technical notes around programming, automation, operations and cybersecurity.'
+                ]
+            },
+            {
+                title: 'BUGS',
+                html: 'Hopefully none, but if there are any report them <a class="term-link" href="https://github.com/diegaless/diegaless.github.io/issues" target="_blank" rel="noopener noreferrer">here</a>.'
+            },
+            {
+                title: 'AUTHOR',
+                html: 'diegaless &lt;<span id="em"><a class="term-link" href="#" id="email-link">click for email</a></span>&gt;'
+            },
+            {
+                title: 'SEE ALSO',
+                paragraphs: ['blog(1), about(2), github(3)']
+            }
+        ]
+    };
+
     const state = {
-        isAnimating: false,
-        stopVimAnimation: false // Flag to stop the Vim cursor blink
+        timers: new Set(),
+        stopVimAnimation: false
     };
 
-    // --- Elements ---
     const terminal = document.getElementById(config.terminalId);
     const navbar = document.getElementById(config.navbarId);
+    const pageStatus = document.getElementById(config.statusId);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // --- Initialization ---
+    const staticPageMap = {
+        'page-home': {
+            command: 'man improveops.me',
+            render: () => renderPageContent(homePageContent)
+        },
+        'page-about': {
+            command: 'cat about-me.txt',
+            render: renderAboutVim
+        },
+        'page-404': {
+            command: 'ping -c 1 unknown_host',
+            render: render404
+        }
+    };
+
     init();
 
     function init() {
-        disableContextMenu();
+        setContentBusy(true);
         setupStickyNavbar();
         setupNavigation();
-        setupEmailReveal();
+        setupContentInteractions();
         setupCopyright();
 
-        // Determine current page and start appropriate animation
-        const pageId = document.body.id;
+        const pageContext = getCurrentPageContext();
 
-        // Initial delay before typing starts
-        setTimeout(() => {
-            switch (pageId) {
-                case 'page-blog':
-                    runTypeSequence("./carrileos-interface.sh", () => renderList(typeof blogData !== 'undefined' ? blogData : [], 'Carrileos', 'No posts found.', 'carrileos'));
-                    break;
-                case 'page-conferences':
-                    runTypeSequence("./conferences.sh", () => renderList(typeof conferencesData !== 'undefined' ? conferencesData : [], 'Conferencias', 'No conferences found.', 'conf'));
-                    break;
-                case 'page-excursions':
-                    runTypeSequence("./excursions.sh", () => renderList(typeof excursionsData !== 'undefined' ? excursionsData : [], 'Excursiones', 'No excursions found.', 'exc'));
-                    break;
-                case 'page-about':
-                    runTypeSequence("vim about-me.txt", renderAboutVim);
-                    break;
-                case 'page-404':
-                    runTypeSequence("ping -c 1 unknown_host", render404);
-                    break;
-                default: // Home
-                    runTypeSequence("man improveops.me", renderManPage);
-            }
-        }, config.initialDelay);
+        if (prefersReducedMotion) {
+            pageContext.render();
+            return;
+        }
 
-        // Set loaded cookie
-        document.cookie = `${config.loadingCookieName}=yes`;
+        schedule(() => runTypeSequence(pageContext.command, pageContext.render), config.initialDelay);
     }
 
-    // --- Core Features ---
+    function getCurrentPageContext() {
+        if (window.pageContent) {
+            return {
+                command: window.pageContent.command || 'cat page-content.js',
+                render: () => renderPageContent(window.pageContent)
+            };
+        }
 
-    function disableContextMenu() {
-        document.oncontextmenu = () => false;
+        return staticPageMap[getPageId()] || staticPageMap['page-home'];
+    }
+
+    function getPageId() {
+        return document.body.id || 'page-home';
+    }
+
+    function schedule(callback, delay) {
+        const timerId = window.setTimeout(() => {
+            state.timers.delete(timerId);
+            callback();
+        }, delay);
+
+        state.timers.add(timerId);
+        return timerId;
+    }
+
+    function clearPendingTimers() {
+        state.timers.forEach((timerId) => window.clearTimeout(timerId));
+        state.timers.clear();
+    }
+
+    function setContentBusy(isBusy) {
+        if (terminal) {
+            terminal.setAttribute('aria-busy', String(isBusy));
+        }
+    }
+
+    function completeRender(message) {
+        setContentBusy(false);
+        if (pageStatus) {
+            pageStatus.textContent = message;
+        }
     }
 
     function setupStickyNavbar() {
@@ -77,34 +140,66 @@ document.addEventListener('DOMContentLoaded', () => {
         const stickyOffset = navbar.offsetTop;
 
         window.addEventListener('scroll', () => {
-            if (window.pageYOffset >= stickyOffset) {
-                navbar.classList.add("sticky");
+            if (window.scrollY >= stickyOffset) {
+                navbar.classList.add('sticky');
             } else {
-                navbar.classList.remove("sticky");
+                navbar.classList.remove('sticky');
             }
-        });
+        }, { passive: true });
     }
 
     function setupNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
+        document.addEventListener('click', (event) => {
+            const link = event.target.closest('.nav-link');
+            if (!link) {
+                return;
+            }
 
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const dest = link.getAttribute('data-dest');
-                if (dest) {
-                    handlePageExit(dest);
-                }
-            });
+            if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+            ) {
+                return;
+            }
+
+            const destination = link.getAttribute('data-dest');
+            if (!destination) {
+                return;
+            }
+
+            event.preventDefault();
+            handlePageExit(destination);
         });
     }
 
-    function setupEmailReveal() {
-        // Delegate event to document for dynamic content
-        document.addEventListener('click', (e) => {
-            if (e.target && e.target.id === config.emailLinkId) {
-                e.preventDefault();
+    function setupContentInteractions() {
+        document.addEventListener('click', (event) => {
+            const emailTrigger = event.target.closest(`#${config.emailLinkId}`);
+            if (emailTrigger) {
+                event.preventDefault();
                 revealEmail();
+                return;
+            }
+
+            const stackToggle = event.target.closest('[data-toggle="stack"]');
+            if (stackToggle) {
+                event.preventDefault();
+                toggleStack(stackToggle);
+                return;
+            }
+
+            const carouselButton = event.target.closest('[data-carousel-id]');
+            if (carouselButton) {
+                event.preventDefault();
+                moveCarousel(
+                    carouselButton.dataset.carouselId,
+                    Number(carouselButton.dataset.carouselStep),
+                    Number(carouselButton.dataset.carouselTotal)
+                );
             }
         });
     }
@@ -116,154 +211,240 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Animation Logic ---
-
     function runTypeSequence(text, onComplete) {
-        let i = 0;
+        let index = 0;
+
         if (!terminal) return;
 
-        function type() {
-            if (i < text.length) {
-                terminal.innerHTML += text.charAt(i);
-                i++;
-                setTimeout(type, config.typingSpeed);
-            } else {
-                setTimeout(onComplete, 500);
+        function typeNextCharacter() {
+            if (index < text.length) {
+                terminal.insertAdjacentText('beforeend', text.charAt(index));
+                index += 1;
+                schedule(typeNextCharacter, config.typingSpeed);
+                return;
             }
+
+            schedule(onComplete, 500);
         }
-        type();
+
+        typeNextCharacter();
     }
 
-    // --- Renderers ---
+    function renderPageContent(pageContent) {
+        if (pageContent.type === 'sections') {
+            renderSectionsPage(pageContent);
+            return;
+        }
 
-    function renderManPage() {
-        const termContent = `<p class="term-title">improveops.me</p>
-<div>
-<b>NAME</b>
-<div class="tabbed">improveops.me -- A website about diegaless.</div>
+        if (pageContent.type === 'list' || Array.isArray(pageContent.entries)) {
+            renderListPage(pageContent);
+            return;
+        }
 
-<b>SYNOPSIS</b>
-<div class="tabbed"><b>improveops.me</b></div>
+        renderContentError();
+    }
 
-<b>DESCRIPTION</b>
-<div class="tabbed">The <b>improveops.me</b> utility provides information on diegaless, including his current and past projects. It also contains what he's gained from them and how they <b>could</b> be made so much better, in addition to why they won't be.</div>
+    function renderSectionsPage(pageContent) {
+        const sectionsHtml = (pageContent.sections || [])
+            .map((section) => renderSection(section))
+            .join('\n');
 
-<b>BUGS</b>
-<div class="tabbed">Hopefully none, but if there are any report them <a href="https://github.com/diegaless/diegaless.github.io/issues" style="text-decoration:underline;color:inherit">here</a>.</div>
+        const pageHtml = `<h1 class="term-title">${escapeHtml(pageContent.title)}</h1>
+${sectionsHtml}`;
 
-<b>AUTHOR</b>
-<div class="tabbed">diegaless &lt;<span id="em"><a href="#" id="email-link" style="text-decoration:underline;color:inherit;cursor:pointer;">click for email</a></span>&gt;</div>
+        setTerminalContent(pageHtml, pageContent.statusMessage || `${pageContent.title} cargado.`);
+    }
 
-<b>SEE ALSO</b>
-<div class="tabbed">blog(1), about(2), cowsay(1), github(3)</div>
+    function renderSection(section) {
+        let contentHtml = '';
+
+        if (Array.isArray(section.paragraphs)) {
+            contentHtml += section.paragraphs
+                .map((paragraph) => `<p class="term-paragraph">${escapeHtml(paragraph)}</p>`)
+                .join('');
+        }
+
+        if (section.html) {
+            contentHtml += section.html;
+        }
+
+        return `<section class="term-section">
+<h2 class="term-section-title">${escapeHtml(section.title)}</h2>
+<div class="tabbed">${contentHtml}</div>
+</section>`;
+    }
+
+    function renderListPage(pageContent) {
+        const { entries, title, emptyMessage, statusMessage } = pageContent;
+
+        let entriesHtml = '';
+
+        if (Array.isArray(entries) && entries.length > 0) {
+            entriesHtml = entries.map((entry, entryIndex) => renderEntry(entry, entryIndex)).join('\n');
+        } else {
+            entriesHtml = `<section class="term-section"><h2 class="term-section-title">NO CONTENT</h2><div class="tabbed">${escapeHtml(emptyMessage)}</div></section>`;
+        }
+
+        const pageHtml = `<h1 class="term-title">${escapeHtml(title)}</h1>
+<div class="terminal-list">
+${entriesHtml}
 </div>`;
-        if (terminal) terminal.innerHTML = termContent;
+
+        setTerminalContent(pageHtml, statusMessage || `${title} cargado.`);
     }
 
-    function renderList(data, title, emptyMsg, idPrefix) {
-        let postsHtml = '';
-        if (typeof data !== 'undefined' && Array.isArray(data) && data.length > 0) {
-            data.forEach((post, index) => {
-                let stackHtml = '';
-                if (post.stack && post.stack.trim().length > 0) {
-                    const stackId = `stack-${idPrefix}-${index}`;
-                    stackHtml = ` <a href="#" onclick="document.getElementById('${stackId}').style.display = document.getElementById('${stackId}').style.display === 'none' ? 'block' : 'none'; return false;" style="text-decoration:none; color:inherit; font-size:0.8em;">[+]</a>
-                    <div id="${stackId}" style="display:none; margin-top:5px; margin-left:10px; opacity:0.8; font-size:0.9em;">${post.stack}</div>`;
-                }
+    function renderEntry(entry, entryIndex) {
+        const stackHtml = renderStack(entry, entryIndex);
+        const carouselHtml = renderCarousel(entry, entryIndex);
 
-                // Carousel Logic
-                let carouselHtml = '';
-                if (post.images && Array.isArray(post.images) && post.images.length > 0) {
-                    const carouselId = `carousel-${idPrefix}-${index}`;
-
-                    let slidesHtml = '';
-                    post.images.forEach((imgSrc, i) => {
-                        const displayStyle = i === 0 ? 'block' : 'none';
-                        const activeClass = i === 0 ? 'active' : '';
-                        const loadingAttr = i === 0 ? 'eager' : 'lazy'; // Load first image immediately, others lazily
-                        slidesHtml += `<div class="carousel-slide ${activeClass}" id="${carouselId}-slide-${i}" style="display:${displayStyle}">
-                            <img src="${imgSrc}" alt="Image ${i + 1}" loading="${loadingAttr}">
-                        </div>`;
-                    });
-
-                    // Only show controls if more than 1 image
-                    let controlsHtml = '';
-                    if (post.images.length > 1) {
-                        controlsHtml = `
-                        <div class="carousel-controls">
-                            <button class="carousel-btn" onclick="window.moveCarousel('${carouselId}', -1, ${post.images.length})">&lt;</button>
-                            <span class="carousel-indicator" id="${carouselId}-indicator">1/${post.images.length}</span>
-                            <button class="carousel-btn" onclick="window.moveCarousel('${carouselId}', 1, ${post.images.length})">&gt;</button>
-                        </div>`;
-                    }
-
-                    carouselHtml = `
-                    <div class="carousel-container" id="${carouselId}">
-                        ${slidesHtml}
-                        ${controlsHtml}
-                    </div>`;
-                }
-
-                postsHtml += `<b>${post.date}</b>
-<div class="tabbed">${post.content}${stackHtml}
+        return `<article class="terminal-entry">
+<p class="entry-date"><time datetime="${escapeHtml(entry.dateIso)}">${escapeHtml(entry.dateDisplay)}</time></p>
+<div class="tabbed">
+<h2 class="entry-title">${escapeHtml(entry.title)}</h2><div class="entry-summary"> - ${entry.summaryHtml}</div>${stackHtml}
 ${carouselHtml}
 </div>
-`;
-            });
-        } else {
-            postsHtml = `<b>NO CONTENT</b><div class="tabbed">${emptyMsg}</div>`;
-        }
-
-        const termContent = `<p class="term-title">${title}</p>
-<div>
-${postsHtml}</div>`;
-        if (terminal) terminal.innerHTML = termContent;
+</article>`;
     }
 
-    // Expose carousel logic globally
-    window.moveCarousel = function (carouselId, step, totalSlides) {
-        // Find current active index
-        let activeIndex = -1;
-        for (let i = 0; i < totalSlides; i++) {
-            const slide = document.getElementById(`${carouselId}-slide-${i}`);
-            if (slide && slide.style.display === 'block') {
-                activeIndex = i;
-                break;
-            }
+    function renderStack(entry, entryIndex) {
+        if (!entry.stackHtml || entry.stackHtml.trim().length === 0) {
+            return '';
         }
 
-        if (activeIndex === -1) return; // Should not happen
+        const stackId = `stack-${entry.slug || entryIndex}`;
+        const escapedTitle = escapeHtml(entry.title);
 
-        // Calculate new index
+        return ` <button class="inline-toggle" type="button" data-toggle="stack" data-target="${stackId}" data-label="${escapedTitle}" aria-expanded="false" aria-controls="${stackId}" aria-label="Mostrar stack de ${escapedTitle}">[+]</button>
+<div id="${stackId}" class="stack-details" hidden>${entry.stackHtml}</div>`;
+    }
+
+    function renderCarousel(entry, entryIndex) {
+        if (!Array.isArray(entry.images) || entry.images.length === 0) {
+            return '';
+        }
+
+        const carouselId = `carousel-${entry.slug || entryIndex}`;
+        const totalSlides = entry.images.length;
+        const slidesHtml = entry.images
+            .map((image, slideIndex) => renderSlide(entry, entryIndex, image, slideIndex, carouselId, totalSlides))
+            .join('\n');
+
+        let controlsHtml = '';
+        if (totalSlides > 1) {
+            controlsHtml = `
+<div class="carousel-controls">
+<button class="carousel-btn" type="button" data-carousel-id="${carouselId}" data-carousel-step="-1" data-carousel-total="${totalSlides}" aria-label="Imagen anterior">&lt;</button>
+<span class="carousel-indicator" id="${carouselId}-indicator" aria-live="polite">1/${totalSlides}</span>
+<button class="carousel-btn" type="button" data-carousel-id="${carouselId}" data-carousel-step="1" data-carousel-total="${totalSlides}" aria-label="Imagen siguiente">&gt;</button>
+</div>`;
+        }
+
+        return `
+<section class="carousel-container" id="${carouselId}" data-current-index="0" aria-label="Galería de ${escapeHtml(entry.title)}">
+${slidesHtml}
+${controlsHtml}
+</section>`;
+    }
+
+    function renderSlide(entry, entryIndex, image, slideIndex, carouselId, totalSlides) {
+        const isInitiallyVisible = slideIndex === 0;
+        const isPageHeroImage = entryIndex === 0 && slideIndex === 0;
+        const hiddenAttribute = isInitiallyVisible ? '' : ' hidden';
+        const activeClass = isInitiallyVisible ? ' active' : '';
+        const ariaCurrent = isInitiallyVisible ? ' aria-current="true"' : '';
+        const loading = isPageHeroImage ? 'eager' : 'lazy';
+        const fetchPriority = isPageHeroImage ? 'high' : 'low';
+        const imageAlt = escapeHtml(image.alt || `${entry.title} (${slideIndex + 1}/${totalSlides})`);
+        const webpSource = image.webp ? `<source type="image/webp" srcset="${image.webp}">` : '';
+
+        return `<div class="carousel-slide${activeClass}" id="${carouselId}-slide-${slideIndex}"${hiddenAttribute}${ariaCurrent}>
+<picture>
+${webpSource}
+<img src="${image.src}" alt="${imageAlt}" loading="${loading}" decoding="async" fetchpriority="${fetchPriority}" width="${image.width}" height="${image.height}">
+</picture>
+</div>`;
+    }
+
+    function moveCarousel(carouselId, step, totalSlides) {
+        const carousel = document.getElementById(carouselId);
+        if (!carousel) return;
+
+        const activeIndex = Number(carousel.dataset.currentIndex || 0);
         let newIndex = activeIndex + step;
+
         if (newIndex < 0) newIndex = totalSlides - 1;
         if (newIndex >= totalSlides) newIndex = 0;
+        if (newIndex === activeIndex) return;
 
-        // Update DOM
-        document.getElementById(`${carouselId}-slide-${activeIndex}`).style.display = 'none';
-        document.getElementById(`${carouselId}-slide-${activeIndex}`).classList.remove('active');
+        const activeSlide = document.getElementById(`${carouselId}-slide-${activeIndex}`);
+        const nextSlide = document.getElementById(`${carouselId}-slide-${newIndex}`);
 
-        document.getElementById(`${carouselId}-slide-${newIndex}`).style.display = 'block';
-        document.getElementById(`${carouselId}-slide-${newIndex}`).classList.add('active');
+        if (!activeSlide || !nextSlide) return;
 
-        // Update indicator
+        activeSlide.hidden = true;
+        activeSlide.classList.remove('active');
+        activeSlide.removeAttribute('aria-current');
+
+        nextSlide.hidden = false;
+        nextSlide.classList.add('active');
+        nextSlide.setAttribute('aria-current', 'true');
+        carousel.dataset.currentIndex = String(newIndex);
+
         const indicator = document.getElementById(`${carouselId}-indicator`);
         if (indicator) {
             indicator.textContent = `${newIndex + 1}/${totalSlides}`;
         }
 
-        // Prefetch next image
-        let nextPrefetchIndex = newIndex + 1;
-        if (nextPrefetchIndex >= totalSlides) nextPrefetchIndex = 0;
-
-        const nextSlide = document.getElementById(`${carouselId}-slide-${nextPrefetchIndex}`);
-        if (nextSlide) {
-            const nextImg = nextSlide.querySelector('img');
-            if (nextImg && nextImg.loading === 'lazy') {
-                nextImg.loading = 'eager'; // Trigger load
-            }
+        const currentImage = nextSlide.querySelector('img');
+        if (currentImage) {
+            currentImage.loading = 'eager';
+            currentImage.fetchPriority = 'high';
         }
-    };
+    }
+
+    function toggleStack(button) {
+        const targetId = button.dataset.target;
+        if (!targetId) return;
+
+        const details = document.getElementById(targetId);
+        if (!details) return;
+
+        const shouldExpand = details.hidden;
+        const label = button.dataset.label || 'este proyecto';
+
+        details.hidden = !shouldExpand;
+        button.textContent = shouldExpand ? '[-]' : '[+]';
+        button.setAttribute('aria-expanded', String(shouldExpand));
+        button.setAttribute('aria-label', `${shouldExpand ? 'Ocultar' : 'Mostrar'} stack de ${label}`);
+    }
+
+    function render404() {
+        const quickLinks = [
+            { href: 'index.html', label: 'Home', hint: 'cd ~/home' },
+            { href: 'blog/blog.html', label: 'Carrileos', hint: 'ls carrileos/' },
+            { href: 'conferences/conferences.html', label: 'Conferencias', hint: 'ls conferences/' },
+            { href: 'competitions/competitions.html', label: 'Competiciones', hint: 'ls competitions/' },
+            { href: 'excursions/excursions.html', label: 'Excursiones', hint: 'ls excursions/' },
+            { href: 'about/about.html', label: 'About Me', hint: 'cat about-me.txt' }
+        ];
+
+        const linksHtml = quickLinks
+            .map((link) => `<p><a class="term-link nav-link" href="${link.href}" data-dest="${link.href}">${escapeHtml(link.hint)}</a>  <span aria-hidden="true">→</span>  ${escapeHtml(link.label)}</p>`)
+            .join('');
+
+        const pageHtml = `<h1 class="term-title">404 Not Found</h1>
+<section class="term-section">
+<h2 class="term-section-title">SIGNAL LOST</h2>
+<div class="tabbed">
+<p class="error-line">ping: unknown_host: Name or service not known</p>
+<p class="error-line">The requested route does not exist.</p>
+<p class="term-paragraph">Use one of these entry points to get back into the site:</p>
+${linksHtml}
+</div>
+</section>`;
+
+        setTerminalContent(pageHtml, 'Página 404 cargada.');
+    }
 
     function renderAboutVim() {
         state.stopVimAnimation = false;
@@ -277,54 +458,71 @@ ${postsHtml}</div>`;
         let toggle = true;
 
         function animateVim() {
-            if (state.stopVimAnimation) return;
+            if (state.stopVimAnimation) {
+                return;
+            }
 
             const cursorHtml = toggle
-                ? `<span style="display:inline;color:inherit;height:10px;width:10px;background-color:currentColor;">l</span>`
-                : `<span style="display:inline;height:10px;width:10px;">l</span>`;
+                ? '<span style="display:inline;color:inherit;height:10px;width:10px;background-color:currentColor;">l</span>'
+                : '<span style="display:inline;height:10px;width:10px;">l</span>';
 
-            if (terminal) terminal.innerHTML = vimTemplate(cursorHtml);
+            if (terminal) {
+                terminal.innerHTML = vimTemplate(cursorHtml);
+            }
+
             toggle = !toggle;
-            setTimeout(animateVim, 500);
+            schedule(animateVim, 500);
         }
 
         animateVim();
+        completeRender('About cargado.');
     }
 
-    function render404() {
+    function renderContentError() {
+        const pageHtml = `<h1 class="term-title">Content Error</h1>
+<section class="term-section">
+<h2 class="term-section-title">ERROR</h2>
+<div class="tabbed">The page content could not be loaded. Review the page-specific data file before publishing to GitHub Pages.</div>
+</section>`;
+
+        setTerminalContent(pageHtml, 'Error de contenido cargado.');
+    }
+
+    function setTerminalContent(html, statusMessage) {
         if (terminal) {
-            terminal.innerHTML += `
-            <br>
-            <span style="color:#ff3333;">ping: unknown_host: Name or service not known</span><br>
-            <span style="color:#ff3333;">Error 404: Signal Lost.</span><br>
-            <b>visitor@improveops.me</b>:~$ 
-            `;
+            terminal.innerHTML = html;
         }
+
+        completeRender(statusMessage);
     }
 
     function revealEmail() {
         const container = document.getElementById(config.emailId);
-        if (container) {
-            const unm = "diego.ayala2";
-            const prvdr = "um.es";
-            const lnktxt = "@";
-            container.innerHTML = `${unm}${lnktxt}${prvdr}`;
-        }
+        if (!container) return;
+
+        const email = 'diego.ayala2@um.es';
+        const emailLink = document.createElement('a');
+        emailLink.href = `mailto:${email}`;
+        emailLink.textContent = email;
+        emailLink.className = 'term-link';
+        container.replaceChildren(emailLink);
     }
 
-    // --- Navigation / Exit Logic ---
-
     function handlePageExit(url) {
-        state.stopVimAnimation = true; // Stop any ongoing loops
+        clearPendingTimers();
+        state.stopVimAnimation = true;
 
-        const pageId = document.body.id;
-
-        if (pageId === 'page-about') {
-            exitFromVim(url);
-        } else {
-            // Default exit (clear)
-            resetAndType("clear", url);
+        if (prefersReducedMotion) {
+            window.location.assign(url);
+            return;
         }
+
+        if (getPageId() === 'page-about') {
+            exitFromVim(url);
+            return;
+        }
+
+        resetAndType('clear', url);
     }
 
     function exitFromVim(url) {
@@ -335,45 +533,62 @@ ${postsHtml}</div>`;
         const vimTail = `</div></div>
 </div>`;
 
-        let cmd = "";
-        const targetCmd = ":q";
-        let i = 0;
+        let command = '';
+        const targetCommand = ':q';
+        let index = 0;
 
-        function typeCmd() {
-            if (i < targetCmd.length) {
-                cmd += targetCmd.charAt(i);
-                if (terminal) terminal.innerHTML = `${vimBase}${cmd}${vimTail}`;
-                i++;
-                setTimeout(typeCmd, config.typingSpeed);
-            } else {
-                // After :q, clear screen
-                setTimeout(() => resetAndType("clear", url), 500);
+        function typeCommand() {
+            if (index < targetCommand.length) {
+                command += targetCommand.charAt(index);
+                index += 1;
+
+                if (terminal) {
+                    terminal.innerHTML = `${vimBase}<span style="color:white;">${command}</span>${vimTail}`;
+                }
+
+                schedule(typeCommand, config.typingSpeed + 50);
+                return;
             }
+
+            schedule(() => {
+                window.location.assign(url);
+            }, 500);
         }
 
-        typeCmd();
+        typeCommand();
     }
 
     function resetAndType(text, url) {
-        // Reset terminal to showing the prompt with the text typing
         if (terminal) {
-            terminal.innerHTML = `<b>visitor@improveops.me</b>:~$ man improveops.me<br><b>visitor@improveops.me</b>:~$ `;
+            terminal.innerHTML = '<strong>visitor@improveops.me</strong>:~$ man improveops.me<br><strong>visitor@improveops.me</strong>:~$ ';
         }
 
-        let i = 0;
+        let index = 0;
+
         function type() {
-            if (i < text.length) {
-                if (terminal) terminal.innerHTML += text.charAt(i);
-                i++;
-                setTimeout(type, config.typingSpeed);
-            } else {
-                setTimeout(() => {
-                    window.location = url;
-                }, 500);
+            if (index < text.length) {
+                if (terminal) {
+                    terminal.insertAdjacentText('beforeend', text.charAt(index));
+                }
+                index += 1;
+                schedule(type, config.typingSpeed);
+                return;
             }
+
+            schedule(() => {
+                window.location.assign(url);
+            }, 500);
         }
 
-        // Small delay before starting to type 'clear'
-        setTimeout(type, 200);
+        schedule(type, 200);
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 });
