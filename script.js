@@ -29,9 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             {
                 title: 'DESCRIPTION',
-                paragraphs: [
-                    'The site collects projects, conference activity, excursions and technical notes around programming, automation, operations and cybersecurity.'
-                ]
+                html: 'The <strong>diegaleesss.com</strong> utility provides information on diegaless, including his current and past projects. It also contains what he\'s gained from them and how they <strong>could</strong> be made so much better, in addition to why they won\'t be.'
             },
             {
                 title: 'BUGS',
@@ -43,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             {
                 title: 'SEE ALSO',
-                paragraphs: ['blog(1), about(2), github(3)']
+                paragraphs: ['blog(1), about(2), cowsay(1), github(3)']
             }
         ]
     };
