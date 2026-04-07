@@ -353,12 +353,15 @@ ${controlsHtml}
         const loading = isPageHeroImage ? 'eager' : 'lazy';
         const fetchPriority = isPageHeroImage ? 'high' : 'low';
         const imageAlt = escapeHtml(image.alt || `${entry.title} (${slideIndex + 1}/${totalSlides})`);
-        const webpSource = image.webp ? `<source type="image/webp" srcset="${image.webp}">` : '';
+        const imageSrc = escapeHtml(encodeURI(image.src));
+        const webpSource = image.webp
+            ? `<source type="image/webp" srcset="${escapeHtml(encodeURI(image.webp))}">`
+            : '';
 
         return `<div class="carousel-slide${activeClass}" id="${carouselId}-slide-${slideIndex}"${hiddenAttribute}${ariaCurrent}>
 <picture>
 ${webpSource}
-<img src="${image.src}" alt="${imageAlt}" loading="${loading}" decoding="async" fetchpriority="${fetchPriority}" width="${image.width}" height="${image.height}">
+<img src="${imageSrc}" alt="${imageAlt}" loading="${loading}" decoding="async" fetchpriority="${fetchPriority}" width="${image.width}" height="${image.height}">
 </picture>
 </div>`;
     }
